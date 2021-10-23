@@ -3,22 +3,23 @@
 # @Date    : 2021-10-21
 # @Author  : iamwm
 
+from broker.store import Store
+
+
 class Exchange:
 
-    def __init__(self, name: str, exchange_type: str) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.exchange_type = exchange_type
-
-    @classmethod
-    def init_exchange_by_name(cls, name: str):
-        pass
+        self.topic_manager = Store(Topic)
 
     def bind_topic(self, topic_name: str):
-        pass
+        target_topic = self.topic_manager.get(topic_name)
+
+
+EManager = Store(Exchange)
 
 
 class Topic:
 
-    def __init__(self, name: str, bind_to: str) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.bind_to = bind_to

@@ -4,30 +4,19 @@
 # @Author  : iamwm
 
 import asyncio
-from typing import Mapping
+
+from broker.store import Store
 
 
 class MessageQueue:
     def __init__(self, name: str) -> None:
         self.name = name
         self.q = asyncio.Queue()
+        self.subscribe_info = {}
+        self.consumers = []
 
+    def set_subscribe_info(self, info: dict):
+        self.subscribe_info = info
 
-class QueueManager:
-    def __init__(self) -> None:
-        self.queue_mapper: Mapping[str, MessageQueue] = {}
-
-    def get_queue(self, queue_name: str) -> MessageQueue:
-        if queue_name not in self.queue_mapper:
-            self.queue_mapper.update({queue_name: MessageQueue(queue_name)})
-        return self.queue_mapper.get(queue_name)
-
-    def set_queue(self, queue: MessageQueue) -> bool:
-        queue_name = queue.name
-        if queue_name in self.queue_mapper:
-            return False
-        self.queue_mapper.update({queue_name, queue})
-        return True
-
-
-QManger = QueueManager()
+    def add_consumer(self, consumer_name: str):
+        self.consumers.append(consumer_name)

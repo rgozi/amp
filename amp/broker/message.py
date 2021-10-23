@@ -4,6 +4,7 @@
 # @Author  : iamwm
 from enum import Enum
 from json import loads
+from dataclasses import asdict, dataclass
 
 
 class MessageType(Enum):
@@ -11,49 +12,58 @@ class MessageType(Enum):
     DATA = 2
 
 
+@dataclass
 class MessageBody:
-    def __init__(self, code: str, timestamp: str, value: str) -> None:
-        self.code = code
-        self.timestamp = timestamp
-        self.value = value
+    code: str
+    timestamp: str
+    value: str
 
     @classmethod
     def load_from_dict(cls, info: dict):
         return cls(**info)
 
 
+@dataclass
 class MessageMeta:
-    def __init__(self, info: dict) -> None:
-        self.info = info
+    info: dict
 
 
 class ConsumerMeta(MessageMeta):
     def __init__(self, info: dict) -> None:
         super().__init__(info)
 
-    @property
-    def queue_name(self):
-        return self.info.get('queue_name')
 
-    @property
-    def subscribe_info(self):
-        return self.info.get('subscribe_info', {})
-
-
+@dataclass
 class MessageBase:
-    def __init__(self, message_type: MessageType, message_body: MessageBody, message_meta: MessageMeta) -> None:
-        self.message_type = message_type
-        self.message_body = message_body
-        self.message_meta = message_meta
+    message_type: MessageType
+    message_body: MessageBody
+    message_meta: MessageMeta
+
+
+    def as_dict(self):
+        return {
+            'message_type': self.message_type.value,
+            'message_body': asdict(self.message_body),
+            'message_meta': asdict(self.message_meta)
+        }
 
     @classmethod
     def load_from_string(cls, message_str: str):
-        message_dict = loads(message_str)
         try:
-            message_type = MessageMeta(message_dict.get('message_type'))
+            message_dict = loads(message_str)
+            message_type = MessageType(message_dict.get('message_type'))
             message_body = MessageBody.load_from_dict(
                 message_dict.get('message_body'))
             message_meta = MessageMeta(message_dict.get('message_meta'))
             return cls(message_type, message_body, message_meta)
         except Exception as e:
             raise Exception("load message error")
+
+
+if __name__ == "__main__":
+    message_body = MessageBody('code', 'time', 'value')
+    meta = MessageMeta({'queue1': {'exchange1': ['topic1', 'topic2']}})
+    message = MessageBase(MessageType.CONNECTION,
+                          message_body, meta)
+
+    print(message.as_dict())

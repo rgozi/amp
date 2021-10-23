@@ -5,13 +5,17 @@
 
 from asyncio.streams import StreamReader, StreamWriter
 
+from broker.queue import MessageQueue
+
 
 class Connection:
-    def __init__(self, name: str, reader: StreamReader, writer: StreamWriter) -> None:
+    def __init__(self, name: str, reader: StreamReader, writer: StreamWriter, ) -> None:
         self.name = name
         self.reader = reader
         self.writer = writer
 
+    def declare_exchange(self, exchange_name: str):
+        pass
 
-class ConnectionManager:
-    pass
+    def bind_queue(self, queue: MessageQueue):
+        queue.add_consumer(self.name)
