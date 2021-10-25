@@ -5,10 +5,10 @@
 
 
 class Store:
-    context = {}
 
     def __init__(self, cls) -> None:
         self.class_type = cls
+        self.context = {}
 
     def get(self, name: str, *args, **kwargs):
         if name not in self.context:

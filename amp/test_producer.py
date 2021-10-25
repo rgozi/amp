@@ -1,7 +1,7 @@
 
 
 import asyncio
-from broker.echo_client import tcp_echo_client
+from broker.test_producer import tcp_echo_client
 
 
 if __name__ == "__main__":

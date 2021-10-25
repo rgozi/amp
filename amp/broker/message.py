@@ -23,14 +23,12 @@ class MessageBody:
         return cls(**info)
 
 
-@dataclass
-class MessageMeta:
-    info: dict
+class MessageMeta(dict):
+    pass
 
-
-class ConsumerMeta(MessageMeta):
-    def __init__(self, info: dict) -> None:
-        super().__init__(info)
+    @property
+    def info(self):
+        return dict(self)
 
 
 @dataclass
@@ -39,12 +37,11 @@ class MessageBase:
     message_body: MessageBody
     message_meta: MessageMeta
 
-
     def as_dict(self):
         return {
             'message_type': self.message_type.value,
             'message_body': asdict(self.message_body),
-            'message_meta': asdict(self.message_meta)
+            'message_meta': self.message_meta
         }
 
     @classmethod

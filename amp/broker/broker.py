@@ -5,6 +5,7 @@
 
 import asyncio
 from asyncio.streams import StreamReader, StreamWriter
+from broker.router import Router
 from broker.connection import Connection
 from broker.exchange import Exchange
 from broker.queue import MessageQueue
@@ -21,10 +22,11 @@ class Broker:
         self.queue_manager: Store = None
         self.exchange_manager: Store = None
 
-    async def start_broker(self, connection_manager: Store, queue_manager: Store, exchange_manager: Store):
+    async def start_broker(self, connection_manager: Store, queue_manager: Store, exchange_manager: Store, router: Router):
         self.connection_manager = connection_manager
         self.queue_manager = queue_manager
         self.exchange_manager = exchange_manager
+        self.router = router
         await self._init_server()
 
     async def _init_server(self):
@@ -35,6 +37,7 @@ class Broker:
             await server.serve_forever()
 
     async def _receive_message(self, reader: StreamReader, writer: StreamWriter):
+        addr = writer.get_extra_info('peername')
         while True:
             try:
                 data = await reader.read(1024)
@@ -42,11 +45,7 @@ class Broker:
                 print(message)
                 if not message:
                     break
-                addr = writer.get_extra_info('peername')
-                response = await self.process_message(message, reader, writer, addr)
-                print(f"Send: {response!r}")
-                writer.write(response.encode())
-                await writer.drain()
+                await self.process_message(message, reader, writer, addr)
             except ConnectionResetError:
                 print('connection closed')
                 break
@@ -55,6 +54,10 @@ class Broker:
                 writer.write('unknown message'.encode())
                 await writer.drain()
 
+        print('connection closed!')
+        if addr in self.connection_manager.context:
+            target_connection: Connection = self.connection_manager.get(addr)
+            await target_connection.on_close()
         writer.close()
         await writer.wait_closed()
 
@@ -62,10 +65,12 @@ class Broker:
         received_message = MessageBase.load_from_string(message)
         if received_message.message_type == MessageType.CONNECTION:
             print('new consumer info received')
-            return await self._create_consumer(received_message, reader, writer, addr)
+            await self._create_consumer(received_message, reader, writer, addr)
         elif received_message.message_type == MessageType.DATA:
             print('new data received')
-            return await self._dispatch_common_message(message)
+            await self._dispatch_common_message(received_message)
+            writer.write('message dispatched'.encode())
+            await writer.drain()
 
     async def _create_consumer(self, message: MessageBase, reader: StreamReader, writer: StreamWriter, addr: str):
         target_connection: Connection = self.connection_manager.get(
@@ -81,10 +86,10 @@ class Broker:
                     target_exchange.bind_topic(topic)
 
             target_connection.bind_queue(target_queue)
-        return 'connection inited'
+        await target_connection.on_create()
 
     async def _dispatch_common_message(self, message: MessageBase):
-        pass
+        await self.router.dispatch(message)
 
 
 def run():
@@ -92,4 +97,5 @@ def run():
     CManager = Store(Connection)
     Emanger = Store(Exchange)
     broker = Broker()
-    asyncio.run(broker.start_broker(CManager, QManger, Emanger))
+    router = Router(QManger)
+    asyncio.run(broker.start_broker(CManager, QManger, Emanger, router))
