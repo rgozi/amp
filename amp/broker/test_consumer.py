@@ -4,7 +4,7 @@ from json import dumps
 
 from asyncio.exceptions import CancelledError
 
-from broker.message import MessageBase, MessageBody, MessageMeta, MessageType
+from common.message import MessageBase, MessageBody, MessageMeta, MessageType
 
 
 async def tcp_echo_client(message):

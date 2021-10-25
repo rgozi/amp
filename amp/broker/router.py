@@ -4,7 +4,7 @@
 # @Author  : iamwm
 
 
-from broker.message import MessageBase
+from common.message import MessageBase
 from broker.store import Store
 
 

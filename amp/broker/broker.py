@@ -11,7 +11,7 @@ from broker.exchange import Exchange
 from broker.queue import MessageQueue
 from broker.store import Store
 
-from broker.message import MessageBase, MessageType
+from common.message import MessageBase, MessageType
 
 
 class Broker:
