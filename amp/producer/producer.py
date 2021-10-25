@@ -5,33 +5,42 @@
 
 
 import asyncio
-from typing import Mapping
 
 
-from common.message import MessageBase, MessageType
+from common.message import MessageBase
 from json import dumps
 
 
 class Producer:
+    """
+    producer class used to generate messages to target topic
+    """
+
     def __init__(self, host: str, port: int) -> None:
         self.host = host
         self.port = port
         self._is_connected = False
+        self._reader = self._writer = None
 
     async def _connect(self):
         while True:
             try:
-                self._reader, self._writer = await asyncio.open_connection(self.host, self.port)
+                self._reader, self._writer = await asyncio.open_connection(
+                    self.host, self.port
+                )
                 self._is_connected = True
             except Exception as e:
-                print(f'connection error:{str(e)}')
-                print('retrying')
+                print(f"connection error:{str(e)}")
+                print("retrying")
                 await asyncio.sleep(3)
                 await self._connect()
             else:
                 break
 
     async def publish_message(self, message: MessageBase):
+        """
+        publish message
+        """
         if not self._is_connected:
             await self._connect()
         message_dict = message.as_dict()
