@@ -5,10 +5,9 @@
 
 
 import asyncio
-
-
-from common.message import MessageBase
 from json import dumps
+
+from amp.common.message import MessageBase
 
 
 class Producer:
@@ -46,3 +45,21 @@ class Producer:
         message_dict = message.as_dict()
         self._writer.write(dumps(message_dict).encode())
         await self._writer.drain()
+
+        data = await self._reader.read(1024)
+        data_str = data.decode()
+        print(f"receive message:{data_str}")
+
+    async def on_close(self):
+        """
+        things to do to clean up
+        """
+        self._is_connected = False
+        self._writer.close()
+        await self._writer.wait_closed()
+
+    async def on_create(self):
+        """
+        things to do to start up
+        """
+        pass

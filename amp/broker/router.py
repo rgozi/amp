@@ -4,8 +4,8 @@
 # @Author  : iamwm
 
 
-from common.message import MessageBase
-from broker.store import Store
+from amp.broker.store import Store
+from amp.common.message import MessageBase
 
 
 class Router:

@@ -5,11 +5,10 @@
 
 import asyncio
 from asyncio import iscoroutinefunction
+from json import dumps
 from typing import Mapping
 
-
-from common.message import MessageBase, MessageBody, MessageMeta, MessageType
-from json import dumps
+from amp.common.message import MessageBase, MessageBody, MessageMeta, MessageType
 
 
 class Consumer:
@@ -31,7 +30,7 @@ class Consumer:
         self._consumer_meta = meta
 
     def init_consumer_process(
-        self, process_mapper: Mapping[str, Mapping[str, callable]]
+            self, process_mapper: Mapping[str, Mapping[str, callable]]
     ):
         """
         init consumer process
@@ -53,9 +52,9 @@ class Consumer:
                 break
 
     async def start_consume(
-        self,
-        consumer_meta: MessageMeta,
-        process_mapper: Mapping[str, Mapping[str, callable]],
+            self,
+            consumer_meta: MessageMeta,
+            process_mapper: Mapping[str, Mapping[str, callable]],
     ):
         """
         start consume

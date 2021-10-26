@@ -3,7 +3,7 @@
 # @Date    : 2021-10-21
 # @Author  : iamwm
 
-from broker.store import Store
+from amp.broker.store import Store
 
 
 class Exchange:

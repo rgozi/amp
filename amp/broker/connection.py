@@ -3,10 +3,9 @@
 # @Date    : 2021-10-21 15:25:27
 # @Author  : iamwm
 
-import asyncio
 from asyncio.streams import StreamReader, StreamWriter
 
-from broker.queue import MessageQueue
+from amp.broker.queue import MessageQueue
 
 
 class Connection:
@@ -15,10 +14,10 @@ class Connection:
     """
 
     def __init__(
-        self,
-        name: str,
-        reader: StreamReader,
-        writer: StreamWriter,
+            self,
+            name: str,
+            reader: StreamReader,
+            writer: StreamWriter,
     ) -> None:
         self.name = name
         self.reader = reader

@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2021-10-21 15:29:45
 # @Author  : iamwm
+from dataclasses import asdict, dataclass
 from enum import Enum
 from json import loads
-from dataclasses import asdict, dataclass
 
 
 class MessageType(Enum):

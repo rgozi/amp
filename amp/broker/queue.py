@@ -5,9 +5,8 @@
 
 import asyncio
 from json import dumps
-from typing import Any
-
 from random import choice
+from typing import Any
 
 
 class MessageQueue:
@@ -45,8 +44,8 @@ class MessageQueue:
         is message subscribed by queue
         """
         return (
-            exchange_name in self.subscribe_info
-            and topic_name in self.subscribe_info.get(exchange_name, {})
+                exchange_name in self.subscribe_info
+                and topic_name in self.subscribe_info.get(exchange_name, {})
         )
 
     def pick_one_consumer(self):
